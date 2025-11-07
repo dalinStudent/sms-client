@@ -1,0 +1,176 @@
+.login-bg {
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+
+    .bg { 
+        --s: 72px; /* control the size*/
+        --c1: #0c203c;
+        --c2: #112748;
+        
+        --_g:radial-gradient(#0000 60%,var(--c1) 61% 63%,#0000 64% 77%,var(--c1) 78% 80%,#0000 81%);
+        --_c:,#0000 75%,var(--c2) 0;
+        background:
+          conic-gradient(at 12% 20% var(--_c)) calc(var(--s)* .44) calc(.9*var(--s)),
+          conic-gradient(at 12% 20% var(--_c)) calc(var(--s)*-.06) calc(.4*var(--s)),
+          conic-gradient(at 20% 12% var(--_c)) calc(.9*var(--s)) calc(var(--s)* .44),
+          conic-gradient(at 20% 12% var(--_c)) calc(.4*var(--s)) calc(var(--s)*-.06),
+          var(--_g),var(--_g) calc(var(--s)/2) calc(var(--s)/2) var(--c2);
+        background-size: var(--s) var(--s);
+          
+        width: 100%;
+        height: 100%;
+    }
+}
+
+.login-page {
+    width: 100vw;
+    height: 100vh;
+
+    position: fixed;
+    z-index: 1;
+    top: 0px;
+    left: 0px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    .login-dialog {
+        width: 552px;
+        margin: 0 auto;
+        overflow: hidden;
+        border-radius: 10px;
+        background-color: #ffff;
+
+        .dialog-content {
+            gap: 30px;
+
+            width: 100%;
+            padding: 40px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+
+            h2 {
+                color: #333333;
+                font-size: 28px;
+                font-weight: 900;
+                line-height: normal;
+            }
+
+            p {
+                color: #606266;
+                font-size: 14px;
+                font-weight: 350;
+                line-height: 22px;
+            }
+
+            .frm-sign-in {
+                width: 100%;
+                .frm-label {
+                    color: #606266;
+                    line-height: 22px;
+                    padding-bottom: 4px;
+                    display: inline-block;
+                }
+                
+                .required-star {
+                    color: #f56c6c;
+                    font-weight: 350;
+                }
+                
+                .forgot-password {
+                    display: flex;
+                    justify-content: flex-end;
+                    width: 100%;
+                    margin-top: 14px;
+
+                    a {
+                        text-decoration: none;
+                        font-weight: 350;
+                        color: #606266;
+                        width: 120px;
+                    }
+                }
+            
+                .frm-control {
+                    gap: 5px;
+                    display: flex;
+                    flex-direction: column;
+                    align-items: start;
+
+                    label {
+                        font-size: 12px;
+                        font-weight: 800;
+                    }
+                }
+
+                .frm-footer {
+                    width: 100%;
+                    display: flex;
+                    align-items: center;
+                    justify-content: flex-end;
+                    padding: 0 0 10px 0;
+                    
+                    a {
+                        text-decoration: none;
+                    }
+                }
+            }
+
+            .submit-button {
+                outline: none;
+                border: none;
+                width: 100%;
+                padding: 9px 20px;
+                border-radius: 8px;
+                color: #ffff;
+                font-size: 14px;
+                font-weight: 500;
+                line-height: 22px;
+                // background-color: #E68F94;
+                background-color: #CD202A;
+                // background-image: linear-gradient(to right, $primary-color, lighten($primary-color, 10));
+
+                // &:hover {
+                //     cursor: pointer;
+                //     background-color: #CD202A;
+                // }
+            }
+        }
+
+        .dialog-footer {
+            text-align: center;
+            background-color: #F4F6F9;
+            padding: 20px 40px;
+
+            p {
+                font-size: 14px;
+
+                span {
+                    color: #545c64;
+                    font-weight: 800;
+
+                    &:hover {
+                        cursor: pointer;
+                        text-decoration: underline;
+                        text-underline-offset: 4px;
+                    }
+                }
+            }
+        }
+    }
+}
+
+@media screen and (max-width: 500px) {
+    .login-page .login-dialog {
+        max-width: 400px;
+    }
+}
+
+@media screen and (max-width: 420px) {
+    .login-page .login-dialog {
+        max-width: 320px;
+    }
+}

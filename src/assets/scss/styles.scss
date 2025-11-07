@@ -1,0 +1,23 @@
+// Use @use consistently
+@use "@/assets/scss/element/index.scss" as *;
+@use "./element/index.scss" as *;
+@use "./auth.scss" as *;
+@use "./font.scss" as *;
+
+// Global styles
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+
+  font-family: 14pxt;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+// Remove number input arrows
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
