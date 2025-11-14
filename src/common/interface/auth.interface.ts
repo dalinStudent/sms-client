@@ -3,5 +3,6 @@ export interface Auth {
     email: string;
     firstName: string;
     lastName: string;
+    imageUrl: string;
     role: string;
 }

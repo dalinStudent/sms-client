@@ -1,14 +1,82 @@
-import { createRouter, createWebHistory } from 'vue-router';
-import LoginPage from '@/views/Login/LoginPage.vue';
+import {
+  createRouter,
+  createWebHistory,
+  type RouteRecordRaw,
+} from "vue-router";
+import LoginPage from "@/views/auth/LoginPage.vue";
+import PrimaryLayout from "@/layouts/PrimaryLayout.vue";
+import DashboardPage from "@/views/dashboard/Dashboard.vue";
+import { useAuthStore } from "@/stores";
 
-const routes = [
-  { path: '/', redirect: '/login' },
-  { path: '/login', component: LoginPage },
+export const routes: RouteRecordRaw[] = [
+  {
+    path: "/auth/login",
+    name: "login",
+    component: LoginPage,
+  },
+  {
+    path: '/change-password',
+    name: 'change-password',
+    component: LoginPage,
+    meta: {
+        layout: PrimaryLayout,
+        breadcrumb: [{ name: 'Change Password' }],
+        requiresAuth: true
+    },
+    children: []
+},
+  {
+    path: "/",
+    component: PrimaryLayout,
+    meta: { requiresAuth: true },
+    children: [
+      {
+        path: "dashboard",
+        name: "dashboard",
+        component: DashboardPage,
+        meta: { requiresAuth: true },
+      },
+      
+    ],
+  },
+  {
+    path: "/:pathMatch(.*)*",
+    redirect: "/dashboard",
+  },
+];
+
+const publicPages = [
+  "/auth/login",
+  '/auth/reset-password',
+  '/reset/finish',
+  '/auth/activate-account'
 ];
 
 const router = createRouter({
   history: createWebHistory(),
   routes,
+});
+
+router.beforeEach(async (to, from, next) => {
+  const authStore = useAuthStore();
+  const authRequired = to.meta.requiresAuth;
+
+  if (authRequired && !authStore.authData) {
+    return next({
+      path: "/auth/login",
+      query: { redirect: to.fullPath },
+    });
+  }
+
+  if (publicPages.includes(to.path) && authStore.authData) return next("/");
+
+  if (!to.matched.some((record) => record.components)) {
+    next("/404-not-found");
+  }
+
+  if (authRequired && !authStore.authData) return next('/auth/login')
+
+    next()
 });
 
 export default router;

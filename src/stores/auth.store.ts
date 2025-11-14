@@ -1,32 +1,38 @@
-// src/stores/auth.ts
 import { defineStore } from "pinia";
 import axios from "axios";
 import type { Auth } from "@/common/interface/auth.interface";
+import messageBoxUtil from "@/utils/message-box.util";
+import { messages } from "@/common/data/message.data";
 
 interface AuthState {
-  token: string;
-  user: Auth | null;
+  authData: string | null;
+  profileData: Auth | null;
   loading: boolean;
+  error: any;
 }
 
 export const useAuthStore = defineStore("auth", {
   state: (): AuthState => ({
-    token: localStorage.getItem("token") || "",
-    user: null,
+    authData: localStorage.getItem("sms-auth-data") as string,
+    profileData: null,
     loading: false,
+    error: null as any,
   }),
   actions: {
-    async login(email: string, password: string) {
+    async login(email: string, password: string): Promise<void> {
       this.loading = true;
       try {
-        const res = await axios.post("http://localhost:8080/auth/login", {
+        const response = await axios.post("http://localhost:8080/auth/login", {
           email,
           password,
         });
-        this.token = res.data.access_token;
-        this.user = res.data.user;
-        localStorage.setItem("token", this.token);
-        return res.data;
+        if (response.data.status.code === 0) {
+          const res = response.data;
+          this.authData = res.data.access_token;
+          this.profileData = res.data.user;
+          localStorage.setItem("sms-auth-data", this.authData as string);
+          return res.data;
+        }
       } catch (error) {
         throw error;
       } finally {
@@ -34,10 +40,32 @@ export const useAuthStore = defineStore("auth", {
       }
     },
 
-    logout() {
-      this.token = "";
-      this.user = null;
-      localStorage.removeItem("token");
+    async fetchProfile() {
+      if (!this.authData) return;
+
+      try {
+        const res = await axios.get("http://localhost:8080/auth/profile", {
+          headers: { Authorization: `Bearer ${this.authData}` },
+        });
+
+        this.profileData = res.data;
+      } catch (err) {
+        messageBoxUtil.error("Session expired. Please log in again.");
+        this.logout();
+      }
+    },
+
+    logout(): void {
+      this.loading = true;
+      try {
+        this.authData = null;
+        this.profileData = null;
+        localStorage.removeItem("sms-auth-data");
+      } catch (error: any) {
+        this.error = error;
+      } finally {
+        this.loading = false;
+      }
     },
   },
 });

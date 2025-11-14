@@ -1,8 +1,10 @@
 // Use @use consistently
+@use "./variables.scss" as v;
 @use "@/assets/scss/element/index.scss" as *;
 @use "./element/index.scss" as *;
 @use "./auth.scss" as *;
 @use "./font.scss" as *;
+@use "./layout.scss" as *;
 
 // Global styles
 * {
@@ -10,7 +12,7 @@
   padding: 0;
   box-sizing: border-box;
 
-  font-family: 14pxt;
+  font-family: "Avenir";
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
