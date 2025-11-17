@@ -1,4 +1,3 @@
-// Use @use consistently
 @use "./variables.scss" as v;
 @use "@/assets/scss/element/index.scss" as *;
 @use "./element/index.scss" as *;
@@ -22,4 +21,130 @@ input::-webkit-outer-spin-button,
 input::-webkit-inner-spin-button {
   -webkit-appearance: none;
   margin: 0;
+}
+
+.list-header {
+  padding: 36px 20px 20px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  .texts {
+    gap: 2px;
+    display: flex;
+    flex-direction: column;
+  }
+}
+
+.list-filter {
+  border-top: 1px solid #e4e7ed;
+  padding: 24px 0 0 0;
+  margin: 0px 24px;
+
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+
+  .row {
+    display: flex;
+    gap: 24px;
+    width: 100%;
+
+    &.one-third {
+      padding-right: 12px;
+      width: 33%;
+    }
+
+    &.half {
+      padding-right: 12px;
+      width: 50%;
+    }
+  }
+
+  .filter {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+
+    p {
+      font-size: 12px;
+      color: #606266;
+    }
+
+    &.small-width {
+      width: 60%;
+    }
+  }
+
+  &.point-pool {
+    padding: 0px;
+    margin: 0px 24px;
+
+    h4 {
+      font-size: 20px;
+      color: #3d4248;
+      font-weight: 700;
+    }
+
+    p {
+      font-size: 16px;
+      color: #3d4248;
+      font-weight: 400;
+    }
+  }
+
+  &.no-padding {
+    padding: unset;
+  }
+
+  &.no-margin {
+    margin: unset;
+  }
+
+  &.mt-5 {
+    margin-top: 20px;
+  }
+
+  &.white-list {
+    padding: 0px;
+    border-top: none;
+    margin: 0px 0px 20px 0px !important;
+  }
+
+  &.no-border {
+    border-top: none;
+  }
+}
+
+.list-table {
+  flex: 1;
+  overflow: auto;
+  padding: 24px;
+
+  gap: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  &.no-gap {
+    gap: 0px;
+  }
+
+  &.no-padding {
+    padding: 24px 0px;
+  }
+}
+
+.form-section {
+  border: 1px solid rgb(195, 190, 190);
+  border-radius: 6px;
+  margin: 20px;
+  .form-header {
+    padding: 20px;
+    background: #ebe3e3;
+  }
+  .form-content {
+    padding: 20px;
+  }
 }

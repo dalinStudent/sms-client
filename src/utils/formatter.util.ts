@@ -27,3 +27,16 @@ export const dateFormatter = (date: Date) => {
     const formattedDateAMPM = formattedDate.replace(/am|pm/i, (match) => match.toUpperCase())
     return formattedDateAMPM
 }
+
+export const  formatDate = (isoString: string) => {
+  const date = new Date(isoString);
+
+  const d = date.getDate().toString().padStart(2, '0');
+  const m = date.toLocaleString('en-US', { month: 'short' });
+  const y = date.getFullYear();
+
+  const h = date.getHours().toString().padStart(2, '0');
+  const min = date.getMinutes().toString().padStart(2, '0');
+
+  return `${d}-${m}-${y}:${h}:${min}`;
+}

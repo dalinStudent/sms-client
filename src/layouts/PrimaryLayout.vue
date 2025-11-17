@@ -4,9 +4,10 @@
         <div class="header-content-footer">
             <div class="content-footer">
                 <div class="content">
-                    <slot />
+                    <!-- IMPORTANT: must use router-view here -->
+                    <router-view />
                 </div>
-                <!-- <Footer></Footer> -->
+                <!-- <Footer /> -->
             </div>
         </div>
     </div>
@@ -20,19 +21,17 @@ import { disableDevTools } from '@/configs'
 
 const authStore = useAuthStore()
 const idleTimeout = ref<any>(null)
-const idleTime = ref<number>(15 * 60 * 1000) // 15 minutes
+const idleTime = ref<number>(15 * 60 * 1000)
+
 onBeforeUnmount(() => {
     window.removeEventListener('mousemove', resetIdleTimeout)
     window.removeEventListener('keypress', resetIdleTimeout)
     window.removeEventListener('scroll', resetIdleTimeout)
 })
 
-watch(
-    () => authStore.authData,
-    () => {
-        resetIdleTimeout()
-    }
-)
+watch(() => authStore.authData, () => {
+    resetIdleTimeout()
+})
 
 onMounted(() => {
     setupIdleTimeout()
@@ -44,14 +43,16 @@ const setupIdleTimeout = () => {
         logout()
     }, idleTime.value)
 }
+
 const resetIdleTimeout = () => {
     clearTimeout(idleTimeout.value)
     setupIdleTimeout()
 }
+
 const logout = () => {
-    const authStore = useAuthStore()
     authStore.logout()
 }
+
 const setupEventListeners = () => {
     window.addEventListener('mousemove', resetIdleTimeout)
     window.addEventListener('keypress', resetIdleTimeout)

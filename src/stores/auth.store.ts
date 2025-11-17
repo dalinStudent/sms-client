@@ -2,7 +2,6 @@ import { defineStore } from "pinia";
 import axios from "axios";
 import type { Auth } from "@/common/interface/auth.interface";
 import messageBoxUtil from "@/utils/message-box.util";
-import { messages } from "@/common/data/message.data";
 
 interface AuthState {
   authData: string | null;

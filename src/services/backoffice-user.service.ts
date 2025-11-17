@@ -18,7 +18,7 @@ export const getUserList = async (
         searchBy
     }
     try {
-        const response = await axios.post(`/users`, body, {
+        const response = await axios.post(`/users/get-all`, body, {
         })
         return response?.data as Response<PaginatedResponse<User>>
     } catch (error: any) {

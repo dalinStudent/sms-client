@@ -1,6 +1,7 @@
 import {
   createRouter,
   createWebHistory,
+  RouterView,
   type RouteRecordRaw,
 } from "vue-router";
 import LoginPage from "@/views/auth/LoginPage.vue";
@@ -8,6 +9,7 @@ import PrimaryLayout from "@/layouts/PrimaryLayout.vue";
 import DashboardPage from "@/views/dashboard/Dashboard.vue";
 import { useAuthStore } from "@/stores";
 import ListUser from "@/views/users/ListUser.vue";
+import CreateUser from "@/views/users/CreateUser.vue";
 
 export const routes: RouteRecordRaw[] = [
   {
@@ -38,31 +40,60 @@ export const routes: RouteRecordRaw[] = [
         meta: { requiresAuth: true },
       },
       {
-        path: 'settings',
-        name: 'settings',
-        meta: {
-          requiresAuth: true
-        },
+        path: "settings",
+        name: "settings",
+        component: RouterView,
+        meta: { requiresAuth: true },
         children: [
           {
-            path: 'backoffice-user',
-            name: 'backoffice-user',
-            meta: {
-              requiresAuth: true
-            },
+            path: "backoffice-user",
+            name: "backoffice-user",
+            component: RouterView,
+            meta: { requiresAuth: true },
             children: [
               {
-                path: '',
-                name: 'list-backoffice-user',
+                path: "",
+                name: "list-backoffice-user",
                 component: ListUser,
-                meta: {
-                  requiresAuth: true,
-                }
-              }
-            ]
-          }
-        ]
-      }
+                meta: { requiresAuth: true },
+              },
+              {
+                path: "create",
+                name: "create-backoffice-user",
+                component: CreateUser,
+                meta: { requiresAuth: true },
+              },
+            ],
+          },
+        ],
+      },
+      // {
+      //   path: 'settings',
+      //   name: 'settings',
+      //   component: RouterView,
+      //   meta: {
+      //     requiresAuth: true
+      //   },
+      //   children: [
+      //     {
+      //       path: 'backoffice-user',
+      //       name: 'backoffice-user',
+      //       meta: {
+      //         requiresAuth: true
+      //       },
+      //       children: [
+      //         {
+      //           path: '',
+      //           name: 'list-backoffice-user',
+      //           component: ListUser,
+      //           meta: {
+      //             requiresAuth: true,
+      //           }
+      //         }
+      //       ]
+      //     }
+      //   ]
+      // }
     ],
   },
   {

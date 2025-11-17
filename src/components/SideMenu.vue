@@ -98,7 +98,6 @@
         custom
         v-slot="{ href, navigate, isExactActive }"
       >
-        <li>
           <a
             :href="href"
             :class="[
@@ -113,7 +112,6 @@
 
             <span class="side-submenu-item-text">Roles & Permission</span>
           </a>
-        </li>
       </router-link>
 
       <router-link
@@ -121,7 +119,6 @@
         custom
         v-slot="{ href, navigate, isExactActive }"
       >
-        <li>
           <a
             :href="href"
             :class="[
@@ -136,7 +133,6 @@
 
             <span class="side-submenu-item-text">Backoffice Users</span>
           </a>
-        </li>
       </router-link>
     </div>
   </nav>
