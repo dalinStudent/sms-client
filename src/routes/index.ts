@@ -7,6 +7,7 @@ import LoginPage from "@/views/auth/LoginPage.vue";
 import PrimaryLayout from "@/layouts/PrimaryLayout.vue";
 import DashboardPage from "@/views/dashboard/Dashboard.vue";
 import { useAuthStore } from "@/stores";
+import ListUser from "@/views/users/ListUser.vue";
 
 export const routes: RouteRecordRaw[] = [
   {
@@ -15,16 +16,16 @@ export const routes: RouteRecordRaw[] = [
     component: LoginPage,
   },
   {
-    path: '/change-password',
-    name: 'change-password',
+    path: "/change-password",
+    name: "change-password",
     component: LoginPage,
     meta: {
-        layout: PrimaryLayout,
-        breadcrumb: [{ name: 'Change Password' }],
-        requiresAuth: true
+      layout: PrimaryLayout,
+      breadcrumb: [{ name: "Change Password" }],
+      requiresAuth: true,
     },
-    children: []
-},
+    children: [],
+  },
   {
     path: "/",
     component: PrimaryLayout,
@@ -36,7 +37,32 @@ export const routes: RouteRecordRaw[] = [
         component: DashboardPage,
         meta: { requiresAuth: true },
       },
-      
+      {
+        path: 'settings',
+        name: 'settings',
+        meta: {
+          requiresAuth: true
+        },
+        children: [
+          {
+            path: 'backoffice-user',
+            name: 'backoffice-user',
+            meta: {
+              requiresAuth: true
+            },
+            children: [
+              {
+                path: '',
+                name: 'list-backoffice-user',
+                component: ListUser,
+                meta: {
+                  requiresAuth: true,
+                }
+              }
+            ]
+          }
+        ]
+      }
     ],
   },
   {
@@ -47,9 +73,9 @@ export const routes: RouteRecordRaw[] = [
 
 const publicPages = [
   "/auth/login",
-  '/auth/reset-password',
-  '/reset/finish',
-  '/auth/activate-account'
+  "/auth/reset-password",
+  "/reset/finish",
+  "/auth/activate-account",
 ];
 
 const router = createRouter({
@@ -74,9 +100,9 @@ router.beforeEach(async (to, from, next) => {
     next("/404-not-found");
   }
 
-  if (authRequired && !authStore.authData) return next('/auth/login')
+  if (authRequired && !authStore.authData) return next("/auth/login");
 
-    next()
+  next();
 });
 
 export default router;
