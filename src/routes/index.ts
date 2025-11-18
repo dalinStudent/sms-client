@@ -10,6 +10,8 @@ import DashboardPage from "@/views/dashboard/Dashboard.vue";
 import { useAuthStore } from "@/stores";
 import ListUser from "@/views/users/ListUser.vue";
 import CreateUser from "@/views/users/CreateUser.vue";
+import Activate from "@/views/auth/Activate.vue";
+import BlankLayout from "@/layouts/BlankLayout.vue";
 
 export const routes: RouteRecordRaw[] = [
   {
@@ -17,6 +19,12 @@ export const routes: RouteRecordRaw[] = [
     name: "login",
     component: LoginPage,
   },
+  {
+    path: '/auth/activate-account',
+    name: 'activate-account',
+    component: Activate,
+    meta: {layout: BlankLayout, requiresAuth: false }
+},
   {
     path: "/change-password",
     name: "change-password",
@@ -67,33 +75,6 @@ export const routes: RouteRecordRaw[] = [
           },
         ],
       },
-      // {
-      //   path: 'settings',
-      //   name: 'settings',
-      //   component: RouterView,
-      //   meta: {
-      //     requiresAuth: true
-      //   },
-      //   children: [
-      //     {
-      //       path: 'backoffice-user',
-      //       name: 'backoffice-user',
-      //       meta: {
-      //         requiresAuth: true
-      //       },
-      //       children: [
-      //         {
-      //           path: '',
-      //           name: 'list-backoffice-user',
-      //           component: ListUser,
-      //           meta: {
-      //             requiresAuth: true,
-      //           }
-      //         }
-      //       ]
-      //     }
-      //   ]
-      // }
     ],
   },
   {

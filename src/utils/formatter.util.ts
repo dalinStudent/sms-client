@@ -40,3 +40,18 @@ export const  formatDate = (isoString: string) => {
 
   return `${d}-${m}-${y}:${h}:${min}`;
 }
+
+export const formatRole = (role: string): string => {
+    const exceptions = ['CLP', 'CBS']
+    return role
+        .replace(/^ROLE_/, '')
+        .toLowerCase()
+        .split('_')
+        .map((word) => {
+            const upperCaseWord = word.toUpperCase()
+            return exceptions.includes(upperCaseWord)
+                ? upperCaseWord
+                : word.charAt(0).toUpperCase() + word.slice(1)
+        })
+        .join(' ')
+}

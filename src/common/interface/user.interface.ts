@@ -1,5 +1,3 @@
-import type { PaginatedQuery } from "./pagination.interface"
-
 export interface User {
     id: number
     firstName: string
@@ -9,12 +7,14 @@ export interface User {
     isActive: boolean
     role: string
     avatar: string
+    deptName: string
+    gender: string
+    staffId: string
+    cidNumber: string
+    password: string
 }
 
-export interface UserPayload extends PaginatedQuery{
-    
-}
-
+export type UserRequestPayload = Omit<User, 'id'>
 export interface MyProfile {
     id: number
     firstName: string

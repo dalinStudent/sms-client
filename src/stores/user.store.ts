@@ -1,8 +1,8 @@
 import { defineStore } from "pinia";
-import type { User } from "@/common/interface/user.interface";
+import type { User, UserRequestPayload } from "@/common/interface/user.interface";
 import type { PaginatedResponse } from "@/common/types/paginated-response.type";
 import type { Response } from "@/common/types/response.type";
-import { getUserList } from "@/services/backoffice-user.service";
+import { getCreateUser, getUserList } from "@/services/backoffice-user.service";
 
 interface UserState {
   data: User[];
@@ -46,5 +46,8 @@ export const useUserStore = defineStore("user", {
         this.loading = false;
       }
     },
+    async createUser(body: UserRequestPayload): Promise<Response<null>> {
+      return getCreateUser(body)
+    }
   },
 });
