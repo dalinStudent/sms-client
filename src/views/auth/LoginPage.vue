@@ -29,9 +29,9 @@
               </div>
 
               <div class="frm-sign-in">
-                <el-form-item label="Email" prop="username">
+                <el-form-item label="Email" prop="email">
                   <el-input
-                    v-model="form.username"
+                    v-model="form.email"
                     maxlength="50"
                     show-word-limit
                     size="large"
@@ -82,28 +82,30 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
+import { reactive, ref, watch } from "vue";
 import { useAuthStore } from "@/stores";
-import type { ElForm } from "element-plus";
+import type { ElForm, FormInstance } from "element-plus";
 import LoginImage from "@/assets/images/login-image.png";
 import HeaderText from "@/components/HeaderText.vue";
 import { useRouter } from "vue-router";
-import CryptoJS from 'crypto-js'
-
-interface LoginForm {
-  username: string;
-  password: string;
-}
-
-const form = ref<LoginForm>({ username: "", password: "" });
-const formRef = ref<InstanceType<typeof ElForm> | null>(null);
-const errorMessage = ref<string | null>(null);
+import CryptoJS from "crypto-js";
 
 const authStore = useAuthStore();
 const router = useRouter();
 
+interface FormModel {
+    email: string
+    password: string
+}
+
+const form = ref<FormModel>({
+  email: '',
+    password: ''
+})
+const errorMessage = ref<string | null>(null);
+const formRef = ref<any>(null)
 const formRules = ref({
-  username: [
+  email: [
     { required: true, message: "Email is required", trigger: "blur" },
     {
       type: "email",
@@ -127,7 +129,7 @@ const submitForm = async () => {
     const hashedPassword = CryptoJS.SHA256(form.value.password)
       .toString()
       .toUpperCase();
-    await authStore.login(form.value.username, hashedPassword);
+    await authStore.login(form.value.email, hashedPassword);
     router.push("/dashboard");
   } catch (error: any) {
     errorMessage.value =
