@@ -1,9 +1,21 @@
 import { defineStore } from "pinia";
-import type { User, UserRequestPayload } from "@/common/interface/user.interface";
+import type {
+  User,
+  UserBlockStatusPayload,
+  UserRequestPayload,
+} from "@/common/interface/user.interface";
 import type { PaginatedResponse } from "@/common/types/paginated-response.type";
 import type { Response } from "@/common/types/response.type";
-import { getCreateUser, getUserList } from "@/services/backoffice-user.service";
-
+import {
+  getBlockUser,
+  getCreateUser,
+  getDeleteUser,
+  getDetailUser,
+  getUpdateUser,
+  getUserList,
+} from "@/services/backoffice-user.service";
+import type { PaginatedRequestPayload } from "@/common/interface/pagination-payload.interface";
+import { resendEmail } from "@/services/activate.service";
 interface UserState {
   data: User[];
   loading: boolean;
@@ -20,34 +32,35 @@ export const useUserStore = defineStore("user", {
   }),
   actions: {
     async getList(
-      currentPage: number,
-      pageSize: number,
-      fromDate: number | string,
-      toDate: number | string,
-      searchBy?: string
+      payload: PaginatedRequestPayload
     ): Promise<Response<PaginatedResponse<User>> | null> {
       this.loading = true;
-      try {
-        const result = await getUserList(
-          currentPage,
-          pageSize,
-          fromDate,
-          toDate,
-          searchBy
-        );
-        const data = result?.data as PaginatedResponse<User>;
-        this.data = data?.content;
-        this.totalPages = data?.totalPages;
-        this.totalElements = data?.totalElements;
-        return result;
-      } catch (error) {
-        return null;
-      } finally {
-        this.loading = false;
-      }
+      const result = await getUserList(payload).finally(
+        () => (this.loading = false)
+      );
+      const data = result?.data as PaginatedResponse<User>;
+      this.data = data?.content;
+      this.totalPages = data?.totalPages;
+      this.totalElements = data?.totalElements;
+      return result;
+    },
+    async detailUser(id: number): Promise<Response<User>> {
+      return getDetailUser(id);
     },
     async createUser(body: UserRequestPayload): Promise<Response<null>> {
-      return getCreateUser(body)
-    }
+      return getCreateUser(body);
+    },
+    async updateUser(body: UserRequestPayload): Promise<Response<null>> {
+      return getUpdateUser(body);
+    },
+    async resend(id: number): Promise<Response<null>> {
+      return resendEmail(id);
+    },
+    async deleteUser(id: number): Promise<Response<null>> {
+      return getDeleteUser(id);
+    },
+    async blockUser(body: UserBlockStatusPayload): Promise<Response<null>> {
+      return getBlockUser(body);
+    },
   },
 });

@@ -5,12 +5,16 @@
     </div>
 
     <div class="buttons">
-            <RouterLink :to="{ path: '/settings/backoffice-user/create' }">
-                <el-button type="primary" :icon="Plus" size="large" :disabled="userStore.loading"
-                    >Add New</el-button
-                >
-            </RouterLink>
-        </div>
+      <RouterLink :to="{ path: '/settings/backoffice-user/create' }">
+        <el-button
+          type="primary"
+          :icon="Plus"
+          size="large"
+          :disabled="userStore.loading"
+          >Add New</el-button
+        >
+      </RouterLink>
+    </div>
   </div>
 
   <div class="list-filter">
@@ -35,6 +39,7 @@
       stripe
       v-loading="userStore.loading"
       :data="userStore.data"
+      @row-dblclick="onDetail"
     >
       <el-table-column
         type="index"
@@ -108,6 +113,59 @@
                 <MoreFilled />
               </el-icon>
             </el-button>
+            <template #dropdown>
+              <el-dropdown-menu>
+                <el-dropdown-item
+                  link
+                  type="primary"
+                  @click="onResend(scope.row)"
+                >
+                  <el-icon>
+                    <Position />
+                  </el-icon>
+                  <p class="ml-5">Resend</p>
+                </el-dropdown-item>
+                <el-dropdown-item
+                  link
+                  type="primary"
+                  @click="onEdit(scope.row)"
+                >
+                  <el-icon>
+                    <EditPen />
+                  </el-icon>
+                  <p class="ml-5">Edit</p>
+                </el-dropdown-item>
+                <el-dropdown-item
+                  link
+                  type="primary"
+                  @click="onDialogMessageOpen('Delete', scope.row)"
+                >
+                  <el-icon>
+                    <Delete />
+                  </el-icon>
+                  <p class="ml-5">Delete</p>
+                </el-dropdown-item>
+                <el-dropdown-item
+                  link
+                  type="primary"
+                  @click="
+                    onDialogMessageOpen(
+                      scope.row.activated === true ? 'Deactivate' : 'Activate',
+                      scope.row
+                    )
+                  "
+                >
+                  <el-icon>
+                    <Lock />
+                  </el-icon>
+                  <p class="ml-5">
+                    {{
+                      scope.row.activated === true ? "Deactivate" : "Activate"
+                    }}
+                  </p>
+                </el-dropdown-item>
+              </el-dropdown-menu>
+            </template>
           </el-dropdown>
         </template>
       </el-table-column>
@@ -126,24 +184,47 @@
       @size-change="handleSizeChange"
     />
   </div>
+
+  <MessageBox
+    v-model="dialogMessageVisible"
+    :title="'Confirmation'"
+    :subtitle="`${`Are you sure you want to ${actionSubmit.toLowerCase()} this user?`}`"
+    :selected-data="data"
+    :approve-btn="`${actionSubmit}`"
+    @update:dialog-visible="onDialogMessageClosed"
+    @approve="handleAction(actionSubmit, data!)"
+    :loading="loading"
+  />
 </template>
 
 <script setup lang="ts">
 import type { Breadcrumb } from "@/common/interface/breadcrumb.interface";
-import type { User } from "@/common/interface/user.interface";
+import type {
+  User,
+  UserBlockStatusPayload,
+} from "@/common/interface/user.interface";
 import PageTitle from "@/components/PageTitle.vue";
 import { useUserStore } from "@/stores";
 import { dateFormatter, formatDate } from "@/utils/formatter.util";
 import messageBoxUtil from "@/utils/message-box.util";
 import { onMounted, ref } from "vue";
-import { Plus, MoreFilled } from '@element-plus/icons-vue';
+import {
+  Plus,
+  MoreFilled,
+  Position,
+  EditPen,
+  Delete,
+} from "@element-plus/icons-vue";
+import type { PaginatedRequestPayload } from "@/common/interface/pagination-payload.interface";
+import router from "@/routes";
+import { messages } from "@/common/data/message.data";
+import MessageBox from "@/components/MessageBox.vue";
 
 const userStore = useUserStore();
 
 const inputSearch = ref<string>("");
 const loading = ref<boolean>(false);
 const dialogMessageVisible = ref<boolean>(false);
-const onDialogMessageClosed = ref<boolean>(false);
 const actionSubmit = ref<string>("");
 const pageSize = ref<number>(20);
 const currentPage = ref<number>(1);
@@ -160,13 +241,16 @@ const breadcrumbs = ref<Breadcrumb[]>([
   },
 ]);
 
-onMounted(() => {
-  onLoad();
-});
+onMounted(() => onLoad());
 
 const onLoad = async () => {
+  const payload: PaginatedRequestPayload = {
+    page: currentPage.value,
+    size: pageSize.value,
+    searchBy: inputSearch.value,
+  };
   await userStore
-    .getList(currentPage.value, pageSize.value, "", "", inputSearch.value)
+    .getList(payload)
     .then(() => {
       isEmpty.value = userStore.data.length === 0;
     })
@@ -175,16 +259,119 @@ const onLoad = async () => {
         messageBoxUtil.error(error.toString());
     });
 };
-
 const onSearch = () => onLoad();
 const handleCurrentChange = (val: number) => {
   currentPage.value = val;
   onLoad();
 };
-
 const handleSizeChange = (val: number) => {
   pageSize.value = val;
   onLoad();
+};
+const onEdit = (row: User) => {
+  router.push("/settings/backoffice-user/" + row.id + "/edit");
+};
+const onDetail = (row: User) => {
+  router.push("/settings/backoffice-user/" + row.id + "/view");
+};
+
+const onResend = async (rowData: User) => {
+  await userStore
+    .resend(rowData.id)
+    .then((res) => {
+      if (res.status.code === 0) {
+        messageBoxUtil.success(
+          res.status.message || messages.success.resent("Email")
+        );
+        onLoad();
+      } else {
+        messageBoxUtil.error(
+          res.status.message || messages.error.resend("Email")
+        );
+      }
+    })
+    .catch((error) => {
+      messageBoxUtil.error(error.toString());
+    });
+};
+
+const onDelete = (rowData: User) => {
+  if (rowData) {
+    loading.value = true;
+    userStore
+      .deleteUser(rowData.id)
+      .then((res) => {
+        if (res.status.code === 0) {
+          messageBoxUtil.success(
+            res.status.message || messages.success.deleted("User")
+          );
+          onLoad();
+        } else {
+          messageBoxUtil.error(
+            res.status.message || messages.error.delete("User")
+          );
+        }
+      })
+      .catch((error) => {
+        if (error.response && error.response.status !== 401)
+          messageBoxUtil.error(error.toString());
+      })
+      .finally(() => {
+        onDialogMessageClosed();
+      });
+  }
+};
+
+const onBlock = (rowData: User) => {
+  if (rowData) {
+    const dto: UserBlockStatusPayload = {
+      block: rowData.isActive ? true : false,
+      id: rowData.id,
+    };
+    loading.value = true;
+    userStore
+      .blockUser(dto)
+      .then((res) => {
+        if (res.status.code === 0) {
+          messageBoxUtil.success(
+            res.status.message || messages.success.deleted("User")
+          );
+          onLoad();
+        } else {
+          messageBoxUtil.error(
+            res.status.message || messages.error.delete("User")
+          );
+        }
+      })
+      .catch((error) => {
+        if (error.response && error.response.status !== 401)
+          messageBoxUtil.error(error.toString());
+      })
+      .finally(() => {
+        onDialogMessageClosed();
+      });
+  }
+};
+
+const onDialogMessageOpen = (action: any, rowData: User) => {
+  data.value = rowData;
+  dialogMessageVisible.value = true;
+  actionSubmit.value = action;
+};
+
+const onDialogMessageClosed = () => {
+  dialogMessageVisible.value = false;
+  loading.value = false;
+};
+
+const handleAction = (action: any, rowData: User) => {
+  data.value = rowData;
+  actionSubmit.value = action;
+  if (action === "Delete") {
+    onDelete(rowData);
+  } else if (action === "Activate" || action === "Deactivate") {
+    onBlock(rowData);
+  }
 };
 
 const indexNoColumn = (index: number) => {

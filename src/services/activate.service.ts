@@ -21,3 +21,20 @@ export const userActivation = async (
         return Promise.reject(error)
     }
 }
+
+export const resendEmail = async (id: number): Promise<Response<null>> => {
+    try {
+      const body = { id };
+      const hashed = HashUtil.hashOrder(body);
+      const response = await axios.post(
+        `/users/resend-activation-key`,
+        { id },
+        {
+          headers: authHeader(hashed),
+        }
+      );
+      return response?.data as Response<null>;
+    } catch (error: any) {
+      return Promise.reject(new Error(error.message));
+    }
+  };

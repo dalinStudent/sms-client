@@ -15,6 +15,11 @@ export interface User {
 }
 
 export type UserRequestPayload = Omit<User, 'id'>
+
+export interface UserBlockStatusPayload {
+    id: number
+    block: boolean
+}
 export interface MyProfile {
     id: number
     firstName: string

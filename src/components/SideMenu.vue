@@ -94,7 +94,7 @@
     <div class="top-side-submenu">
       <p style="padding-top: 16px">Back Office Settings</p>
       <router-link
-        to="/settings/roles-permission"
+        to="/settings/role-permission"
         custom
         v-slot="{ href, navigate, isExactActive }"
       >
