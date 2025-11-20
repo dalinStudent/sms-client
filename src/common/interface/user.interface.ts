@@ -11,10 +11,10 @@ export interface User {
     gender: string
     staffId: string
     cidNumber: string
-    password: string
 }
 
 export type UserRequestPayload = Omit<User, 'id'>
+export type UserUpdateRequestPayload = User
 
 export interface UserBlockStatusPayload {
     id: number

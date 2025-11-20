@@ -25,33 +25,29 @@ export const useAuthStore = defineStore("auth", {
           email,
           password,
         });
-    
+
         if (response.data.status.code === 0) {
           const res = response.data.data;
-    
+
           this.authData = res.access_token;
-          this.profileData = res.user;
-    
+
           localStorage.setItem("sms-auth-data", this.authData as string);
+          this.profileData = res.user;
         }
       } catch (error) {
         throw error;
       } finally {
         this.loading = false;
       }
-    },    
+    },
 
     async fetchProfile() {
-      if (!this.authData) return;
-
       try {
         const res = await axios.get("http://localhost:8080/auth/profile", {
           headers: { Authorization: `Bearer ${this.authData}` },
         });
-
         this.profileData = res.data;
-        console.log('profile data', this.profileData)
-      } catch (err) {
+      } catch (err: any) {
         messageBoxUtil.error("Session expired. Please log in again.");
         this.logout();
       }

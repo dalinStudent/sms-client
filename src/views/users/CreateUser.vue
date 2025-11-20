@@ -90,12 +90,6 @@
               </el-form-item>
             </el-col>
 
-            <el-col :span="8">
-              <el-form-item label="Password" prop="password">
-                <el-input v-model="form.password" maxlength="50" show-word-limit size="large"
-                  placeholder="Input Password" />
-              </el-form-item>
-            </el-col>
           </el-row>
           <div class="buttons">
             <el-button @click="router.go(-1)" size="large">Cancel</el-button>
@@ -204,7 +198,6 @@ const submit = () => {
         avatar: form.value.avatar,
         deptName: form.value.deptName,
         staffId: form.value.staffId,
-        password: form.value.password,
         cidNumber: form.value.cidNumber,
       };
       await useStore

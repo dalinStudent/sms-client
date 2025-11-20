@@ -50,7 +50,7 @@
       />
       <el-table-column label="Image" width="70" align="center" fixed="left">
         <template #default="{ row }">
-          <Image :iconUrl="row.imageUrl ? row.imageUrl : ''" />
+          <el-image class="footer-profile" :src="row.avatar || DefaultImage" />
         </template>
       </el-table-column>
       <el-table-column label="Name" min-width="230" fixed="left">
@@ -65,7 +65,7 @@
       </el-table-column>
       <el-table-column label="Role" min-width="200">
         <template #default="{ row }">
-          {{ row.role.toUpperCase() }}
+          {{ formatSplitRole(formatEnumToText(row.role)) }}
         </template>
       </el-table-column>
 
@@ -74,15 +74,15 @@
       <el-table-column label="User Status" width="230">
         <template #default="{ row }">
           <el-tag
-            :type="row.activated === true ? 'success' : 'info'"
+            :type="row.isActive === true ? 'success' : 'info'"
             round
             size="small"
             effect="dark"
-            >{{ row.activated === true ? "Active" : "Inactive" }}</el-tag
+            >{{ row.isActive === true ? "Active" : "Inactive" }}</el-tag
           >
           <div style="font-size: 12px">
             Last Login:
-            {{ row.lastLoginDate ? dateFormatter(row.lastLoginDate) : "N/A" }}
+            {{ row.lastLogin ? dateFormatter(row.lastLogin) : "N/A" }}
           </div>
         </template>
       </el-table-column>
@@ -92,12 +92,10 @@
           {{ row.createdAt ? dateFormatter(row.createdAt) : "N/A" }}
         </template>
       </el-table-column>
-      <el-table-column prop="lastModifiedBy" label="Modified By" width="200" />
+      <el-table-column prop="updatedBy" label="Modified By" width="200" />
       <el-table-column label="Last Modified Date" width="200">
         <template #default="{ row }">
-          {{
-            row.lastModifiedDate ? dateFormatter(row.lastModifiedDate) : "N/A"
-          }}
+          {{ row.updatedAt ? dateFormatter(row.updatedAt) : "N/A" }}
         </template>
       </el-table-column>
       <el-table-column
@@ -116,6 +114,7 @@
             <template #dropdown>
               <el-dropdown-menu>
                 <el-dropdown-item
+                  v-if="scope.row.isActive === false"
                   link
                   type="primary"
                   @click="onResend(scope.row)"
@@ -150,7 +149,7 @@
                   type="primary"
                   @click="
                     onDialogMessageOpen(
-                      scope.row.activated === true ? 'Deactivate' : 'Activate',
+                      scope.row.isActive === true ? 'Deactivate' : 'Activate',
                       scope.row
                     )
                   "
@@ -160,7 +159,7 @@
                   </el-icon>
                   <p class="ml-5">
                     {{
-                      scope.row.activated === true ? "Deactivate" : "Activate"
+                      scope.row.isActive === true ? "Deactivate" : "Activate"
                     }}
                   </p>
                 </el-dropdown-item>
@@ -205,7 +204,11 @@ import type {
 } from "@/common/interface/user.interface";
 import PageTitle from "@/components/PageTitle.vue";
 import { useUserStore } from "@/stores";
-import { dateFormatter, formatDate } from "@/utils/formatter.util";
+import {
+  dateFormatter,
+  formatEnumToText,
+  formatSplitRole,
+} from "@/utils/formatter.util";
 import messageBoxUtil from "@/utils/message-box.util";
 import { onMounted, ref } from "vue";
 import {
@@ -214,11 +217,13 @@ import {
   Position,
   EditPen,
   Delete,
+  Lock,
 } from "@element-plus/icons-vue";
 import type { PaginatedRequestPayload } from "@/common/interface/pagination-payload.interface";
 import router from "@/routes";
 import { messages } from "@/common/data/message.data";
 import MessageBox from "@/components/MessageBox.vue";
+import DefaultImage from "@/assets/images/user.png";
 
 const userStore = useUserStore();
 

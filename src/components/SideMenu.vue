@@ -158,15 +158,17 @@ import UserIcon from "./menu-icon/UserIcon.vue";
 const authStore = useAuthStore();
 const route = useRoute();
 
-onMounted(() => {
-  if (authStore.authData) {
-    authStore.fetchProfile();
-  }
-});
-
 watch(
-  () => authStore.profileData,
-  (v) => console.log("PROFILE UPDATED →", v),
+  () => authStore.authData,
+  async (token) => {
+    if (token) {
+      try {
+        await authStore.fetchProfile();
+      } catch (err) {
+        console.error("Failed to fetch profile:", err);
+      }
+    }
+  },
   { immediate: true }
 );
 

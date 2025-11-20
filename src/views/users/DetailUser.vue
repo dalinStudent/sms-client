@@ -2,8 +2,13 @@
   <div class="list-header">
     <PageTitle
       :items="breadcrumbs"
-      :title="`${route.path.includes('edit') ? 'Edit' : 'View'} User`"
+      :title="`${isEdit ? 'Edit' : 'View'} User`"
     />
+    <div class="buttons">
+      <el-button type="primary" :icon="EditPen" @click="isEdit = true"
+        >Edit</el-button
+      >
+    </div>
   </div>
   <div class="border-header" />
   <div class="form-sections enabled">
@@ -12,6 +17,7 @@
       <el-form
         label-position="top"
         :model="form"
+        :disabled="!isEdit"
         :rules="formRules"
         v-loading="loading"
         ref="formRef"
@@ -129,10 +135,10 @@
                   filterable
                 >
                   <el-option
-                    v-for="(role, index) in Roles"
+                    v-for="(role, index) in roleStore.data"
                     :key="index"
-                    :value="role.value"
-                    :label="formatRole(role.label)"
+                    :value="role.name"
+                    :label="formatEnumToText(role.name)"
                   />
                 </el-select>
               </el-form-item>
@@ -162,7 +168,7 @@
               </el-form-item>
             </el-col>
           </el-row>
-          <div class="buttons">
+          <div v-if="isEdit" class="buttons">
             <el-button @click="router.go(-1)" size="large">Cancel</el-button>
             <el-button
               type="primary"
@@ -179,32 +185,35 @@
 </template>
 
 <script setup lang="ts">
-import { onBeforeMount, onMounted, ref } from "vue";
-import { RefreshLeft, Female, Male } from "@element-plus/icons-vue";
+import { onBeforeMount, onMounted, ref, watch } from "vue";
+import { RefreshLeft, Female, Male, EditPen } from "@element-plus/icons-vue";
 import type { Breadcrumb } from "@/common/interface/breadcrumb.interface";
 import PageTitle from "@/components/PageTitle.vue";
 import UploadProfile from "@/components/UploadProfile.vue";
 import router from "@/routes";
-import { formatRole } from "@/utils/formatter.util";
+import {
+  formatEnumToText,
+  formatRole,
+  formatSplitRole,
+} from "@/utils/formatter.util";
 import messageBoxUtil from "@/utils/message-box.util";
 import { messages } from "@/common/data/message.data";
-import type { UserRequestPayload } from "@/common/interface/user.interface";
-import { useUserStore } from "@/stores";
+import type {
+  UserRequestPayload,
+  UserUpdateRequestPayload,
+} from "@/common/interface/user.interface";
+import { useRoleStore, useUserStore } from "@/stores";
 import { useRoute } from "vue-router";
+import type { PaginatedRequestPayload } from "@/common/interface/pagination-payload.interface";
 
 const Gender = [
-  { value: "M", label: "Male" },
-  { value: "F", label: "Female" },
-];
-
-const Roles = [
-  { value: "ROLE_USER", label: "User" },
-  { value: "ROLE_ADMIN", label: "Admin" },
-  { value: "ROLE_OPERATOR", label: "Operator" },
+  { value: "MALE", label: "Male" },
+  { value: "FEMALE", label: "Female" },
 ];
 
 const useStore = useUserStore();
 const route = useRoute();
+const roleStore = useRoleStore();
 
 const loading = ref<boolean>(false);
 const form = ref<{
@@ -257,19 +266,21 @@ const breadcrumbs = ref<Breadcrumb[]>([
     path: null,
   },
 ]);
-let id = ref();
-let isEdit: boolean = false;
+const id = ref<number | null>(null);
+const isEdit = ref(false);
 
 onBeforeMount(() => {
   id.value = Number(route.params.id);
-  isEdit = route.path.includes("edit");
+  isEdit.value = route.path.includes("edit");
 });
 
 onMounted(async () => {
+  onRoleLoad();
+  const _id = Number(id)
   if (id) {
     loading.value = true;
     await useStore
-      .detailUser(id.value)
+      .detailUser(_id)
       .then((res) => {
         if (!res.data) {
           messageBoxUtil.error(messages.error.somethingIsWrong());
@@ -282,7 +293,7 @@ onMounted(async () => {
               (form.value.deptName = data.deptName),
               (form.value.email = data.email),
               (form.value.phoneNumber = data.phoneNumber),
-              (form.value.role = data.role),
+              (form.value.role = formatSplitRole(formatEnumToText(data.role))),
               (form.value.staffId = data.staffId),
               (form.value.gender = data.gender),
               (form.value.avatar = data.avatar);
@@ -295,6 +306,21 @@ onMounted(async () => {
   }
 });
 
+const onRoleLoad = async () => {
+  const payload: PaginatedRequestPayload = {
+    page: 1,
+    size: 200,
+  };
+  await roleStore.getList(payload);
+};
+
+watch(
+  () => route.path,
+  (newPath) => {
+    isEdit.value = newPath.includes('edit');
+  }
+);
+
 const submit = () => {
   formRef.value.validate(async (valid: boolean) => {
     if (valid) {
@@ -303,22 +329,22 @@ const submit = () => {
       //   return;
       // }
       loading.value = true;
-      const userDto: UserRequestPayload = {
+      const userDto: UserUpdateRequestPayload = {
+        id: id.value as number,
         firstName: form.value.firstName,
         lastName: form.value.lastName,
         email: form.value.email,
         phoneNumber: form.value.phoneNumber,
         isActive: form.value.isActive,
-        role: form.value.role,
+        role: form.value.role?.trim(),
         gender: form.value.gender,
         avatar: form.value.avatar,
         deptName: form.value.deptName,
         staffId: form.value.staffId,
-        password: form.value.password,
         cidNumber: form.value.cidNumber,
       };
       await useStore
-        .createUser(userDto)
+        .updateUser(userDto)
         .then((res) => {
           if (res.status.code === 0) {
             messageBoxUtil.success(
